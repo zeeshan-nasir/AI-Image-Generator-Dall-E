@@ -225,6 +225,7 @@ function Navbar() {
             </Box>
           </MenuItem>
 
+          {/* links */}
           <Box sx={{ borderBottom: `1px solid ${shades.secondary[300]}` }}>
             {[
               { label: "Read the announcement", url: "" },
@@ -235,21 +236,31 @@ function Navbar() {
                 {node.label}
               </MenuItem>
             ))}
-            <MenuItem
-              onClick={() => {
-                dispatch(logOut(toast));
-                handleCloseUserMenu();
-              }}
-              sx={{ p: "8px 10px", fontSize: "12px" }}
-            >
-              {status === STATUS.LOADING ? (
+            {status === STATUS.LOADING ? (
+              <MenuItem
+                sx={{
+                  p: "8px 10px",
+                }}
+              >
                 <CircularProgress size="15px" />
-              ) : (
-                "Sign out"
-              )}
-            </MenuItem>
+              </MenuItem>
+            ) : (
+              <MenuItem
+                onClick={() => {
+                  dispatch(logOut(toast));
+                  handleCloseUserMenu();
+                }}
+                sx={{
+                  p: "8px 10px",
+                  fontSize: "12px",
+                }}
+              >
+                Sign out
+              </MenuItem>
+            )}
           </Box>
 
+          {/* footer menu items */}
           <FlexBox justifyContent="start" columnGap="10px" p="10px">
             {[
               { label: "Content policy", url: "" },
