@@ -5,11 +5,10 @@ import Checkbox from "@mui/material/Checkbox";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { shades } from "../../theme";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Oauth from "./Oauth";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { useToast } from "@chakra-ui/react";
 import { useState } from "react";
 
 import Visibility from "@mui/icons-material/Visibility";
@@ -19,10 +18,11 @@ import { login } from "../../state/userSlice";
 import { useDispatch } from "react-redux";
 
 export default function SignIn() {
-  const toast = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { state } = useLocation();
 
   const initialValues = {
     email: "",
@@ -34,8 +34,8 @@ export default function SignIn() {
     password: yup.string().trim().required("Required"),
   });
 
-  const handleFormSubmit = (values, { resetForm, setSubmitting }) => {
-    dispatch(login(values, resetForm, setSubmitting, toast, navigate));
+  const handleFormSubmit = (values, { setSubmitting }) => {
+    dispatch(login(values, setSubmitting, navigate, state?.from));
   };
 
   const formik = useFormik({

@@ -1,23 +1,38 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { instance, privateInstance } from "../utils/apiInstances";
 import { STATUS } from "../utils/enums";
+import { toast } from "react-toastify";
+
+const initialState = {
+  posts: [],
+  currPage: 1,
+  totalPages: null,
+  status: STATUS.IDLE,
+};
 
 export const postsSlice = createSlice({
   name: "posts",
-  initialState: { posts: [], status: STATUS.IDLE },
+  initialState,
   reducers: {
     setPosts: (state, action) => {
-      return { ...state, posts: action.payload };
+      return {
+        ...state,
+        posts: action.payload.posts,
+        totalPages: action.payload.totalPages,
+      };
+    },
+
+    setpage: (state, action) => {
+      return { ...state, currPage: action.payload };
     },
 
     setStatus: (state, action) => {
-      console.log(action);
       return { ...state, status: action.payload };
     },
   },
 });
 
-export const { setPosts, setStatus } = postsSlice.actions;
+export const { setPosts, setpage, setStatus } = postsSlice.actions;
 export default postsSlice.reducer;
 
 export const createPost = (image, prompt) => (dispatch) => {
@@ -27,19 +42,33 @@ export const createPost = (image, prompt) => (dispatch) => {
       image,
       prompt,
     })
-    .then(() => {})
-    .finally(() => setTimeout(() => dispatch(setStatus(STATUS.IDLE)), 5000));
-};
-
-export const fetchPosts = () => (dispatch) => {
-  dispatch(setStatus(STATUS.LOADING));
-  instance
-    .get("/api/v1/posts")
-    .then((data) => {
-      dispatch(setStatus(STATUS.IDLE));
-      dispatch(setPosts(data.data.posts.reverse()));
+    .then(() => {
+      toast.success("Shared successfully!");
+      dispatch(fetchPosts());
     })
-    .catch((err) => {
-      dispatch(setStatus(STATUS.ERROR));
+    .catch(() => {
+      toast.error("Something went wrong. Try again..!");
+    })
+    .finally(() => {
+      dispatch(setStatus(STATUS.IDLE));
     });
 };
+
+export const fetchPosts =
+  (page = 1) =>
+  (dispatch) => {
+    dispatch(setStatus(STATUS.LOADING));
+    instance
+      .get("/api/v1/posts", {
+        params: {
+          page,
+        },
+      })
+      .then((data) => {
+        dispatch(setStatus(STATUS.IDLE));
+        dispatch(setPosts(data.data));
+      })
+      .catch((err) => {
+        dispatch(setStatus(STATUS.ERROR));
+      });
+  };

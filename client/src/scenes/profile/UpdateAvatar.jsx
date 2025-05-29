@@ -16,7 +16,6 @@ import { green } from "@mui/material/colors";
 import { removeUserAvatar, updateUserAvatar } from "../../state/userSlice";
 import { useDispatch } from "react-redux";
 import { resolvePath, STATUS } from "../../utils";
-import { useToast } from "@chakra-ui/react";
 
 export default function UpdateAvatar({
   user,
@@ -25,24 +24,23 @@ export default function UpdateAvatar({
   setOpenAvatarDialog,
 }) {
   const avatarRef = useRef(null);
-  const toast = useToast();
-
-  const handleClose = () => {
-    setAvatar(user.avatar);
-    setPreview(user.avatar);
-    setOpenAvatarDialog(false);
-  };
 
   const [avatar, setAvatar] = useState(user.avatar);
   const [preview, setPreview] = useState(user.avatar);
+
+  const handleClose = (e, avatar = user.avatar) => {
+    setAvatar(avatar);
+    setPreview(avatar);
+    setOpenAvatarDialog(false);
+  };
 
   const dispatch = useDispatch();
 
   const handleSubmit = () => {
     dispatch(
       avatar
-        ? updateUserAvatar(toast, handleClose, avatar)
-        : removeUserAvatar(toast, handleClose)
+        ? updateUserAvatar(handleClose, avatar)
+        : removeUserAvatar(handleClose)
     );
   };
 
@@ -166,6 +164,9 @@ export default function UpdateAvatar({
                   disabled={status === STATUS.LOADING}
                   sx={{
                     ":disabled": { background: "lightgray", color: "#fff" },
+                    ":hover": {
+                      background: `${avatar ? "#0682ff" : "#df0404"}`,
+                    },
                     color: "#fff",
                     padding: "10px 20px",
                     borderRadius: "20px",

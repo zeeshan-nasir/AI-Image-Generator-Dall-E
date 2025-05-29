@@ -48,7 +48,6 @@ app.get("/", async (req, res) => {
 });
 
 // console.log(await redis.llen("blacklist"));
-// console.log(path.resolve(__dirname, "/abc"));
 
 // Error handler
 app.use(errorHandler);

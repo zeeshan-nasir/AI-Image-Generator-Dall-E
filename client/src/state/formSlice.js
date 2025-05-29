@@ -6,7 +6,7 @@ import { instance } from "../utils/apiInstances";
 export const formSlice = createSlice({
   name: "form",
   initialState: {
-    prompt: "A man standing in front of a stargate to another dimension",
+    prompt: "",
     images: [
       {
         id: 1,
@@ -50,14 +50,13 @@ export default formSlice.reducer;
 
 export const generatePosts = (prompt) => (dispatch) => {
   dispatch(setStatus(STATUS.LOADING));
-
   instance
     .post("/api/v1/dalle", { prompt })
     .then((data) => {
-      console.log(data);
       dispatch(setStatus(STATUS.IDLE));
       dispatch(
         updateForm({
+          prompt,
           images: data.data.images.map((photo, index) => ({
             id: uuidv4(),
             index,
@@ -67,7 +66,6 @@ export const generatePosts = (prompt) => (dispatch) => {
       );
     })
     .catch((err) => {
-      console.log(err);
       dispatch(setStatus(STATUS.ERROR));
     });
 };
