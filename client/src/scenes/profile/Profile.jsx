@@ -21,14 +21,14 @@ const Profile = () => {
     <>
       {user && (
         <Box
-          //   border={1}
           sx={{
             maxWidth: "400px",
-            padding: "0px",
-            margin: "30px auto auto",
+            padding: "20px",
+            margin: "auto",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            justifyContent: "start",
             rowGap: "20px",
             height: "calc(100vh - 130px)",
           }}

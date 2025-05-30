@@ -60,11 +60,12 @@ const VerifyEmail = () => {
 
   return (
     <Stack
+      // border={1}
       sx={{
         width: "300px",
         padding: "20px",
         height: "500px",
-        margin: "20px auto",
+        margin: "40px auto",
         alignItems: "center",
       }}
     >
@@ -152,8 +153,6 @@ const VerifyEmail = () => {
           Resend
         </Button>
       </Typography>
-
-      {/* <Link to="/signup">Verify later</Link> */}
     </Stack>
   );
 };
