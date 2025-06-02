@@ -16,8 +16,16 @@ router.post(
   mailController.verifyEmailVerificationOtp
 );
 
-router.post("/sendresetpasswordotp", mailController.sendResetPasswordOtp);
+// router.post("/sendresetpasswordotp", mailController.sendResetPasswordOtp);
+router.post("/sendresetpasswordlink", mailController.sendResetPasswordLink);
 
-router.post("/verifyresetpasswordotp", mailController.verifyResetPasswordOtp);
+// router.post("/verifyresetpasswordotp", mailController.verifyResetPasswordOtp);
+
+router.get(
+  "/verifyresetpasswordlink/:token",
+  mailController.verifyResetPasswordLink
+);
+
+router.get("/verifyticket/:ticket", mailController.verifyTicket);
 
 export default router;

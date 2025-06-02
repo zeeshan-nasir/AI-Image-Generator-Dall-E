@@ -17,6 +17,7 @@ import { CircularProgress, IconButton, InputAdornment } from "@mui/material";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { register } from "../../state/userSlice";
+import logo from "../../assets/smallLogo.svg";
 
 export default function SignUp() {
   const dispatch = useDispatch();
@@ -72,6 +73,7 @@ export default function SignUp() {
   return (
     <Box
       sx={{
+        minWidth: "320px",
         maxWidth: "400px",
         padding: "20px",
         margin: "30px auto auto",
@@ -80,6 +82,13 @@ export default function SignUp() {
         alignItems: "center",
       }}
     >
+      <Link to="/">
+        <img
+          style={{ width: "32px", marginBottom: "30px" }}
+          src={logo}
+          alt="logo"
+        />
+      </Link>
       <Typography color={shades.primary[400]} fontSize="28px" fontWeight="bold">
         Create your account
       </Typography>
@@ -231,13 +240,7 @@ export default function SignUp() {
 
         <Typography color={shades.primary[400]} textAlign="center">
           Already have an account?{" "}
-          <Link
-            style={{
-              color: "#000000",
-              textDecoration: "none",
-            }}
-            to="/signin"
-          >
+          <Link style={{ color: "#0066C0" }} to="/signin">
             Sign in
           </Link>
         </Typography>

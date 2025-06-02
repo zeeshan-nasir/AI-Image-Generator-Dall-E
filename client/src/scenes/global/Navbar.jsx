@@ -7,7 +7,7 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.svg";
 import { FlexBox } from "../../components/FlexBox";
 import { shades } from "../../theme";
@@ -28,11 +28,11 @@ const UserAvatar = ({ user, setEmailVerificationAlert }) => {
   return (
     <>
       {user?.verified ? (
-        <Avatar src={resolvePath(user?.avatar)} />
+        <Avatar src={resolvePath(user?.avatar?.url)} />
       ) : (
         <Chip
           sx={{ cursor: "pointer" }}
-          avatar={<Avatar src={resolvePath(user?.avatar)} />}
+          avatar={<Avatar src={resolvePath(user?.avatar?.url)} />}
           label={
             <Badge
               onClick={(e) => {
@@ -138,6 +138,19 @@ function Navbar({ setEmailVerificationAlert }) {
   const handleCloseUserMenu = () => {
     status !== STATUS.LOADING && setAnchorElUser(null);
   };
+
+  const { pathname } = useLocation();
+  if (
+    [
+      "/signin",
+      "/signup",
+      "/new-password",
+      "/reset-password/instructions",
+      "/reset-password",
+      "/expired",
+    ].includes(pathname)
+  )
+    return null;
 
   return (
     <FlexBox

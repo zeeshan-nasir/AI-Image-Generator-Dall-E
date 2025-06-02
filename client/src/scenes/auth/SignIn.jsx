@@ -23,6 +23,7 @@ import { login } from "../../state/userSlice";
 import { useDispatch } from "react-redux";
 import { backdropContext } from "../../context/BackdropContext";
 import { FlexBox } from "../../components/FlexBox";
+import logo from "../../assets/smallLogo.svg";
 
 export default function SignIn({ setEmailVerificationAlert }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -86,6 +87,7 @@ export default function SignIn({ setEmailVerificationAlert }) {
   return (
     <Box
       sx={{
+        minWidth: "320px",
         maxWidth: "400px",
         padding: "20px",
         margin: "30px auto auto",
@@ -94,6 +96,13 @@ export default function SignIn({ setEmailVerificationAlert }) {
         alignItems: "center",
       }}
     >
+      <Link to="/">
+        <img
+          style={{ width: "32px", marginBottom: "30px" }}
+          src={logo}
+          alt="logo"
+        />
+      </Link>
       <Typography color={shades.primary[400]} fontSize="28px" fontWeight="bold">
         Welcome back
       </Typography>
@@ -144,71 +153,66 @@ export default function SignIn({ setEmailVerificationAlert }) {
             ),
           }}
         />
-        <FlexBox justifyContent="space-between">
-          <Box>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="isPersistent"
-                  value={values.isPersistent}
-                  color="primary"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                />
-              }
-              label="Keep me signed in."
-            />
-
-            <Button
-              sx={{
-                color: "#0066C0",
-                fontSize: "13px",
-                textTransform: "none",
-                fontWeight: 400,
-                padding: 0,
-                ml: "-8px",
-                mt: "1px",
-              }}
-              onClick={handleClick}
-            >
-              Details
-              <ArrowDropDownIcon
-                sx={{ mt: "-2px", color: shades.primary[400] }}
+        <Box>
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="isPersistent"
+                value={values.isPersistent}
+                color="primary"
+                onChange={handleChange}
+                onBlur={handleBlur}
               />
-            </Button>
-            {/* popover  */}
-            <Popover
-              open={open}
-              anchorEl={anchorEl}
-              onClose={handleClose}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "center",
-              }}
-              transformOrigin={{
-                vertical: "bottom",
-                horizontal: "center",
-              }}
-            >
-              <Box width="300px" p="15px">
-                <Typography
-                  variant="small"
-                  sx={{
-                    whiteSpace: "pre-wrap",
-                    color: shades.primary[400],
-                  }}
-                >
-                  {`Choosing "Keep me signed in" reduces the number of times you're asked to Sign-In on this device.\nTo keep your account secure, use this option only on your personal devices.`}
-                </Typography>
-              </Box>
-            </Popover>
-          </Box>
+            }
+            label="Keep me signed in."
+          />
 
-          <Link to="/reset-password" style={{ color: "#0066C0" }}>
-            Forgot Password
-          </Link>
-        </FlexBox>
+          <Button
+            sx={{
+              color: "#0066C0",
+              fontSize: "13px",
+              textTransform: "none",
+              fontWeight: 400,
+              padding: 0,
+              ml: "-8px",
+              mt: "1px",
+            }}
+            onClick={handleClick}
+          >
+            Details
+            <ArrowDropDownIcon
+              sx={{ mt: "-2px", color: shades.primary[400] }}
+            />
+          </Button>
+          {/* popover  */}
+          <Popover
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "center",
+            }}
+            transformOrigin={{
+              vertical: "bottom",
+              horizontal: "center",
+            }}
+          >
+            <Box width="300px" p="15px">
+              <Typography
+                variant="small"
+                sx={{
+                  whiteSpace: "pre-wrap",
+                  color: shades.primary[400],
+                }}
+              >
+                {`Choosing "Keep me signed in" reduces the number of times you're asked to Sign-In on this device.\nTo keep your account secure, use this option only on your personal devices.`}
+              </Typography>
+            </Box>
+          </Popover>
+        </Box>
 
+        {/* signin button */}
         <Box
           sx={{
             my: 1,
@@ -242,15 +246,21 @@ export default function SignIn({ setEmailVerificationAlert }) {
             />
           )}
         </Box>
-        <Typography color={shades.primary[400]} textAlign="center">
-          Don't have an account?{" "}
+
+        <FlexBox mt="15px" gap="15px" justifyContent="space-between">
+          <Typography color={shades.primary[400]}>
+            Don't have an account?{" "}
+            <Link to="/signup" style={{ color: "#0066C0" }}>
+              Sign Up
+            </Link>
+          </Typography>
           <Link
-            style={{ color: "#000000", textDecoration: "none" }}
-            to="/signup"
+            to="/reset-password"
+            style={{ textDecoration: "underline", color: "#0066C0" }}
           >
-            Sign Up
+            Forgot Password?
           </Link>
-        </Typography>
+        </FlexBox>
       </Box>
       <Oauth />
     </Box>
