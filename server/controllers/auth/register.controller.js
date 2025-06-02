@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { User } from "../../models/index.js";
+import { User, Collection } from "../../models/index.js";
 import CustomErrorHandler from "../../services/CustomErrorHandler.js";
 import bcrypt from "bcrypt";
 
@@ -36,8 +36,6 @@ const registerController = {
         ...(lastName && { lastName }),
         email,
         password: hashedPwd,
-        avatar: null,
-        verified: false,
       };
 
       // const user = new User(payload);
@@ -45,7 +43,12 @@ const registerController = {
 
       // or using create method
 
-      await User.create(payload);
+      const user = await User.create(payload);
+      await Collection.create({
+        name: "Favorites",
+        slug: "favorites",
+        user: user._id,
+      });
       res.status(201).json({
         success: true,
         message: "Account created Succesfully..!",

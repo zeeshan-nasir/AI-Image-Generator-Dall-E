@@ -7,6 +7,7 @@ const initialState = {
   posts: [],
   currPage: 1,
   totalPages: null,
+  searchPost: "",
   status: STATUS.IDLE,
 };
 
@@ -15,15 +16,17 @@ export const postsSlice = createSlice({
   initialState,
   reducers: {
     setPosts: (state, action) => {
+      const { posts, currPage, totalPages } = action?.payload;
       return {
         ...state,
-        posts: action.payload.posts,
-        totalPages: action.payload.totalPages,
+        posts: posts,
+        totalPages: totalPages,
+        currPage: +currPage,
       };
     },
 
-    setpage: (state, action) => {
-      return { ...state, currPage: action.payload };
+    setSearchPost: (state, action) => {
+      return { ...state, searchPost: action.payload };
     },
 
     setStatus: (state, action) => {
@@ -32,37 +35,37 @@ export const postsSlice = createSlice({
   },
 });
 
-export const { setPosts, setpage, setStatus } = postsSlice.actions;
+export const { setPosts, setStatus, setSearchPost } = postsSlice.actions;
 export default postsSlice.reducer;
 
-export const createPost = (image, prompt) => (dispatch) => {
-  dispatch(setStatus(STATUS.LOADING));
-  privateInstance
-    .post("/api/v1/posts", {
-      image,
-      prompt,
-    })
-    .then(() => {
-      toast.success("Shared successfully!");
-      dispatch(fetchPosts());
-    })
-    .catch(() => {
-      toast.error("Something went wrong. Try again..!");
-    })
-    .finally(() => {
-      dispatch(setStatus(STATUS.IDLE));
-    });
-};
+export const createPost =
+  ({ image, prompt }) =>
+  (dispatch) => {
+    dispatch(setStatus(STATUS.LOADING));
+    privateInstance
+      .post("/api/v1/posts", {
+        image,
+        prompt,
+      })
+      .then(() => {
+        toast.success("Shared successfully!");
+        dispatch(fetchPosts({}));
+      })
+      .catch(() => {
+        toast.error("Something went wrong. Try again..!");
+      })
+      .finally(() => {
+        dispatch(setStatus(STATUS.IDLE));
+      });
+  };
 
 export const fetchPosts =
-  (page = 1) =>
+  ({ page, searchPost }) =>
   (dispatch) => {
     dispatch(setStatus(STATUS.LOADING));
     instance
       .get("/api/v1/posts", {
-        params: {
-          page,
-        },
+        params: { page, ...(searchPost && { q: searchPost }) },
       })
       .then((data) => {
         dispatch(setStatus(STATUS.IDLE));

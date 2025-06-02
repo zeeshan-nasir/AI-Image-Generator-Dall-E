@@ -19,7 +19,7 @@ const NotFound = () => {
     >
       {/* some dummy image */}
       <Grid mobile={isMobile.toString()}>
-        {posts.slice(1, 6).map((post, idx) => (
+        {posts.slice(0, 6).map((post, idx) => (
           <Box
             sx={{
               ":hover > div": {
@@ -55,7 +55,11 @@ const NotFound = () => {
                 </Typography>
               </Box>
             </Box>
-            <img style={{ width: "100%" }} src={post.image} alt="demoimages" />
+            <img
+              style={{ width: "100%" }}
+              src={post.image.url}
+              alt="demoimages"
+            />
           </Box>
         ))}
       </Grid>

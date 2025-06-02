@@ -14,6 +14,8 @@ import { shades } from "../../theme";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { downloadImage, STATUS } from "../../utils";
 import { createPost } from "../../state/postsSlice";
+import DDButton from "./DDButton";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 
 const SingleImageDashboard = () => {
   const isMobile = useMediaQuery("(max-width:767px)");
@@ -23,18 +25,20 @@ const SingleImageDashboard = () => {
     (state) => state,
     shallowEqual
   );
-  const { images, prompt } = formReducer;
+  const { posts } = formReducer;
   const { status } = postsReducer;
+
+  const { id } = useParams();
+
+  let { image, prompt } = posts.find((node) => node.id == id);
+
   const shareBtnlabel =
     "Once you've created the image you want, you can share it with others in the community";
 
   const handleShare = () => {
-    dispatch(createPost(image, prompt));
+    const args = { image, prompt };
+    dispatch(createPost(args));
   };
-
-  const { id } = useParams();
-
-  let { image } = images.find((node) => node.id == id);
 
   const handleDownload = () => {
     downloadImage(id, image);
@@ -69,37 +73,45 @@ const SingleImageDashboard = () => {
         </FlexBox>
 
         {/* Share/download desktop version */}
-        {!isMobile && (
-          <FlexBox columnGap="10px">
-            <Btn onClick={handleDownload}>Download</Btn>
-            <Box title={shareBtnlabel} position="relative">
-              <Btn disabled={status === STATUS.LOADING} onClick={handleShare}>
-                Share with community
+        <FlexBox columnGap="10px">
+          {!isMobile && (
+            <>
+              <Btn onClick={handleDownload}>
+                <FileDownloadOutlinedIcon />
               </Btn>
-              {status === STATUS.LOADING && (
-                <CircularProgress
-                  size={18}
-                  sx={{
-                    position: "absolute",
-                    color: "#1d2226",
-                    left: "50%",
-                    top: "50%",
-                    mt: "-11px",
-                    ml: "-9px",
-                  }}
-                />
-              )}
-            </Box>
-          </FlexBox>
-        )}
+              <Box title={shareBtnlabel} position="relative">
+                <Btn disabled={status === STATUS.LOADING} onClick={handleShare}>
+                  Share with community
+                </Btn>
+                {status === STATUS.LOADING && (
+                  <CircularProgress
+                    size={18}
+                    sx={{
+                      position: "absolute",
+                      color: "#1d2226",
+                      left: "50%",
+                      top: "50%",
+                      mt: "-11px",
+                      ml: "-9px",
+                    }}
+                  />
+                )}
+              </Box>
+            </>
+          )}
+          <DDButton {...{ image, prompt }} />
+        </FlexBox>
       </FlexBox>
       <Outlet />
+
       {isMobile && (
         <Typography variant="small" color={shades.primary[300]}>
           Once you've created the image you want, you can share it with others
           in the community
         </Typography>
       )}
+
+      {/* download and share button for mobile sscreen */}
       {isMobile && (
         <FlexBox pt="30px" mt="auto" columnGap="10px">
           <Box flex={1}>
@@ -145,7 +157,8 @@ export default SingleImageDashboard;
 const Btn = styled(Button)(({ mobile }) => ({
   fontWeight: "bold",
   transition: "0.2s",
-  padding: `${mobile === "true" ? "20px" : "10px"}`,
+  minWidth: 0,
+  padding: `${mobile === "true" ? "20px" : "8px 12px"}`,
   background: `${shades.secondary[300]}`,
   borderRadius: "5px",
   ":hover": {

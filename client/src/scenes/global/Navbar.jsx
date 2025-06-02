@@ -15,10 +15,14 @@ import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { green } from "@mui/material/colors";
 import { logOut } from "../../state/userSlice";
 import { Badge, Chip, CircularProgress } from "@mui/material";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { resolvePath, STATUS } from "../../utils";
+import { backdropContext } from "../../context/BackdropContext";
 
-const pages = ["History", "Collections"];
+const pages = [
+  { title: "Your posts", url: "/userposts" },
+  { title: "Collections", url: "/collections" },
+];
 
 const UserAvatar = ({ user, setEmailVerificationAlert }) => {
   return (
@@ -112,6 +116,8 @@ function Navbar({ setEmailVerificationAlert }) {
     shallowEqual
   );
 
+  const { toggleBackdrop } = useContext(backdropContext);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -151,10 +157,12 @@ function Navbar({ setEmailVerificationAlert }) {
 
       {/* pages desktop view */}
       <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-        {pages.map((page) => (
+        {pages.map((page, idx) => (
           <Button
-            key={page}
-            onClick={handleCloseNavMenu}
+            key={idx}
+            onClick={() => {
+              navigate(page.url);
+            }}
             sx={{ display: "block" }}
           >
             <Typography
@@ -163,7 +171,7 @@ function Navbar({ setEmailVerificationAlert }) {
               color={shades.primary[300]}
               textTransform="none"
             >
-              {page}
+              {page.title}
             </Typography>
           </Button>
         ))}
@@ -200,17 +208,20 @@ function Navbar({ setEmailVerificationAlert }) {
             "& ul": { padding: 0 },
           }}
         >
-          {pages.map((page) => (
+          {pages.map((page, idx) => (
             <MenuItem
               sx={{
                 p: "12px 24px",
                 borderBottom: `1px solid ${shades.secondary[300]}`,
               }}
-              key={page}
-              onClick={handleCloseNavMenu}
+              key={idx}
+              onClick={() => {
+                handleCloseNavMenu();
+                navigate(page.url);
+              }}
             >
               <Typography fontSize="16px" fontWeight="bold" textAlign="center">
-                {page}
+                {page.title}
               </Typography>
             </MenuItem>
           ))}
@@ -263,7 +274,6 @@ function Navbar({ setEmailVerificationAlert }) {
         )}
         <Menu
           sx={{
-            mt: "40px",
             "& ul": {
               padding: 0,
             },
@@ -271,10 +281,37 @@ function Navbar({ setEmailVerificationAlert }) {
               borderRadius: "10px",
             },
           }}
+          disableScrollLock={true}
+          PaperProps={{
+            elevation: 0,
+            sx: {
+              overflow: "visible",
+              filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+              mt: 1.5,
+              "& .MuiAvatar-root": {
+                width: 32,
+                height: 32,
+                ml: -0.5,
+                mr: 1,
+              },
+              "&:before": {
+                content: '""',
+                display: "block",
+                position: "absolute",
+                top: 0,
+                right: 14,
+                width: 10,
+                height: 10,
+                bgcolor: "background.paper",
+                transform: "translateY(-50%) rotate(45deg)",
+                zIndex: 0,
+              },
+            },
+          }}
           id="menu-appbar"
           anchorEl={anchorElUser}
           anchorOrigin={{
-            vertical: "top",
+            vertical: "bottom",
             horizontal: "right",
           }}
           keepMounted
@@ -289,13 +326,13 @@ function Navbar({ setEmailVerificationAlert }) {
           <MenuItem
             sx={{
               borderBottom: `1px solid ${shades.secondary[300]}`,
-              minWidth: "230px",
+              minWidth: "210px",
               padding: "8px 10px",
             }}
             onClick={handleCloseUserMenu}
           >
             <Link to="/account">
-              <FlexBox justifyContent="space-between">
+              <FlexBox justifyContent="space-between" gap="35px">
                 <Box>
                   <Typography fontWeight="bold" fontSize="13px">
                     {user?.firstName} {user?.lastName}
@@ -304,23 +341,28 @@ function Navbar({ setEmailVerificationAlert }) {
                     {user?.email}
                   </Typography>
                 </Box>
-                <Badge
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    if (!user?.verified) setEmailVerificationAlert(true);
-                  }}
-                  badgeContent={user?.verified ? "Verified" : "Verify"}
-                  sx={{
-                    "& .MuiBadge-badge": {
-                      fontSize: "11px",
+                <Box>
+                  <Button
+                    sx={{
+                      fontSize: "10px",
+                      padding: 0,
                       color: "#fff",
+                      borderRadius: "50px",
+                      pt: "1px",
                       bgcolor: user?.verified ? "#40a0ed" : "#ff7300",
-                    },
-                    ml: "40px",
-                    mr: "25px",
-                  }}
-                />
+                      ":hover": {
+                        bgcolor: user?.verified ? "#008cff" : "#ff5e00",
+                      },
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      if (!user?.verified) setEmailVerificationAlert(true);
+                    }}
+                  >
+                    {user?.verified ? "Verified" : "Verify"}
+                  </Button>
+                </Box>
               </FlexBox>
             </Link>
           </MenuItem>
@@ -359,7 +401,7 @@ function Navbar({ setEmailVerificationAlert }) {
             ) : (
               <MenuItem
                 onClick={() => {
-                  dispatch(logOut(navigate));
+                  dispatch(logOut({ toggleBackdrop, navigate }));
                   handleCloseUserMenu();
                 }}
                 sx={{

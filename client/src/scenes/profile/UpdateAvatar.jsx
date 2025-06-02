@@ -5,17 +5,22 @@ import {
   Box,
   Button,
   CircularProgress,
+  Slide,
   Typography,
 } from "@mui/material";
 import { FlexBox } from "../../components/FlexBox";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useRef, useState } from "react";
+import { forwardRef, useRef, useState } from "react";
 import { shades } from "../../theme";
 import { green } from "@mui/material/colors";
 import { removeUserAvatar, updateUserAvatar } from "../../state/userSlice";
 import { useDispatch } from "react-redux";
 import { resolvePath, STATUS } from "../../utils";
+
+const Transition = forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default function UpdateAvatar({
   user,
@@ -54,10 +59,12 @@ export default function UpdateAvatar({
             maxWidth: "800px",
             width: "700px",
             margin: "10px",
-            minWidth: "320px",
+            minWidth: "300px",
           },
         }}
         open={openAvatarDialog}
+        TransitionComponent={Transition}
+        keepMounted
       >
         <DialogTitle>Profile photo</DialogTitle>
         <Box>

@@ -1,7 +1,7 @@
 import Navbar from "./scenes/global/Navbar";
 import Home from "./scenes/home/Home";
 import SearchResult from "./scenes/searchResult/SearchResult";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import SingleImage from "./scenes/singleImage/SingleImage";
 import SingleImageDashboard from "./scenes/singleImage/SingleImageDashboard";
@@ -21,70 +21,46 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import VerifyEmail from "./scenes/auth/VerifyEmail";
 import VerifyEmailAlert from "./components/verifyEmailAlert";
-
-// const Test = () => {
-//   return (
-//     <div style={{ textAlign: "center" }}>
-//       <div
-//         style={{
-//           background: "#0a66c2",
-//           padding: "30px",
-//           // textAlign: "center",
-//           color: "white",
-//         }}
-//       >
-//         <h1>Thankyou for choosing DALL.E</h1>
-//         <p>Verify Your E-mail Address</p>
-//       </div>
-//       <h1>Hi,</h1>
-//       <p>You're almost ready to start enjoying DALL.E.</p>
-//       <p>
-//         Simply confirm that hashmatw555@gmail.com is your e-mail address by
-//         using this code:
-//       </p>
-//       <div style={{ padding: "20px" }}>
-//         <h1>2367</h1>
-//         <p>This code will expire in 1 hour</p>
-//         <p>Thanks</p>
-//       </div>
-//       <div style={{ background: "lightgray", padding: "30px" }}>
-//         <h1>Get in touch</h1>
-//         <p>
-//           <a href="tel:7006600835">7006600835</a>
-//         </p>
-//         <p>
-//           <a href="mailto:hashmatwani@icloud.com">hashmatwani@icloud.com</a>
-//         </p>
-//       </div>
-//     </div>
-//   );
-// };
+import { Backdrop, Box, CircularProgress } from "@mui/material";
+import UserPosts from "./scenes/UserPosts";
+import { useContext } from "react";
+import { backdropContext } from "./context/BackdropContext";
+import useDebounce from "./hooks/useDebounce";
+import Collections from "./scenes/Collections";
+import SavedPosts from "./components/SavedPosts";
 
 function App() {
   const [emailVerificationAlert, setEmailVerificationAlert] = useState(false);
 
   const dispatch = useDispatch();
-  const { currPage } = useSelector((state) => state.postsReducer, shallowEqual);
+
+  const { openBackdrop, toggleBackdrop } = useContext(backdropContext);
+  const { searchPost } = useSelector(
+    (state) => state.postsReducer,
+    shallowEqual
+  );
+
+  const debouncedSearch = useDebounce(searchPost, 2000);
 
   useEffect(() => {
-    dispatch(verifyUser());
-  }, []);
-
-  useEffect(() => {
-    dispatch(fetchPosts(currPage));
-  }, [currPage]);
+    dispatch(fetchPosts({ searchPost }));
+  }, [debouncedSearch]);
 
   const { userReducer, formReducer } = useSelector(
     (state) => state,
     shallowEqual
   );
   const { user } = userReducer;
-  const { prompt, images } = formReducer;
-  // console.log(user);
+  const { posts } = formReducer;
+
+  useEffect(() => {
+    dispatch(verifyUser({ toggleBackdrop }));
+  }, []);
+
   return (
     <div className="App">
-      <BrowserRouter>
-        <Navbar {...{ setEmailVerificationAlert }} />
+      <Navbar {...{ setEmailVerificationAlert }} />
+      <Box flex={1}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<SearchResult />} />
@@ -92,11 +68,7 @@ function App() {
             path="/search/single"
             element={
               <PrivateRoute>
-                {prompt && images.length ? (
-                  <SingleImageDashboard />
-                ) : (
-                  <Navigate to="/" />
-                )}
+                {posts.length ? <SingleImageDashboard /> : <Navigate to="/" />}
               </PrivateRoute>
             }
           >
@@ -138,27 +110,58 @@ function App() {
             path="/verifyemail"
             element={user && !user?.verified ? <VerifyEmail /> : <Home />}
           />
-          {/* <Route path="/test" element={<Test />} /> */}
+          <Route
+            path="/userposts"
+            element={
+              <PrivateRoute>
+                <UserPosts />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/collections"
+            element={
+              <PrivateRoute>
+                <Collections />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/collections/:slug/:id"
+            element={
+              <PrivateRoute>
+                <SavedPosts />
+              </PrivateRoute>
+            }
+          />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <Footer />
-        <VerifyEmailAlert
-          {...{ emailVerificationAlert, setEmailVerificationAlert }}
-        />
-        <ToastContainer
-          position="top-center"
-          autoClose={4000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
-      </BrowserRouter>
-      ;
+      </Box>
+      <Footer />
+      <VerifyEmailAlert
+        {...{ emailVerificationAlert, setEmailVerificationAlert }}
+      />
+      <ToastContainer
+        position="top-center"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={openBackdrop}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </div>
   );
 }

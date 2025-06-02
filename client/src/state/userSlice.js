@@ -3,6 +3,7 @@ import { STATUS } from "../utils";
 import { MODE, SERVER_DEV_API, SERVER_PROD_API } from "../env";
 import { instance, privateInstance } from "../utils/apiInstances";
 import { toast } from "react-toastify";
+import { clearUserPosts } from "./userPostsSlice";
 
 const initialState = {
   user: null,
@@ -30,30 +31,39 @@ const userSlice = createSlice({
 export const { setUser, clearUser, setStatus } = userSlice.actions;
 export default userSlice.reducer;
 
-export const register = (values, resetForm, setSubmitting, navigate) => () => {
-  const { firstName, lastName, email, password } = values;
-  instance
-    .post("/api/v1/auth/register", {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      email: email.trim().toLowerCase(),
-      password: password.trim(),
-    })
+export const register =
+  ({ values, resetForm, setSubmitting, navigate }) =>
+  () => {
+    const { firstName, lastName, email, password } = values;
+    instance
+      .post("/api/v1/auth/register", {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim().toLowerCase(),
+        password: password.trim(),
+      })
 
-    .then((data) => {
-      navigate("/signin");
-      resetForm();
-      toast.success(data.data.message);
-    })
-    .catch((err) => {
-      const { message } = err?.response?.data || err;
-      toast.error(message);
-    })
-    .finally(() => setSubmitting(false));
-};
+      .then((data) => {
+        navigate("/signin");
+        resetForm();
+        toast.success(data.data.message);
+      })
+      .catch((err) => {
+        const { message } = err?.response?.data || err;
+        toast.error(message);
+      })
+      .finally(() => setSubmitting(false));
+  };
 
 export const login =
-  ({ values, setSubmitting, navigate, to = "/", setEmailVerificationAlert }) =>
+  ({
+    values,
+    setSubmitting,
+    navigate,
+    to = "/",
+    setEmailVerificationAlert,
+    toggleBackdrop,
+  }) =>
   (dispatch) => {
     const { email, password, isPersistent } = values;
 
@@ -78,9 +88,14 @@ export const login =
             type: "info",
           },
         };
-        const redirect = { navigate, to };
-        const alert = { setEmailVerificationAlert };
-        return dispatch(verifyUser(popup, redirect, alert));
+        const args = {
+          alert: setEmailVerificationAlert,
+          toggleBackdrop,
+          popup,
+          navigate,
+          to,
+        };
+        return dispatch(verifyUser(args));
       })
       .catch((err) => {
         const { message } = err?.response?.data || err;
@@ -90,7 +105,7 @@ export const login =
   };
 
 export const logOut =
-  (navigate, popupMsg = true) =>
+  ({ toggleBackdrop, navigate, popupMsg = true }) =>
   (dispatch) => {
     dispatch(setStatus(STATUS.LOADING));
     privateInstance
@@ -109,11 +124,13 @@ export const logOut =
             }
           : null;
 
-        const redirect = {
+        const args = {
+          toggleBackdrop,
+          popup,
           navigate,
           to: "/signin",
         };
-        return dispatch(verifyUser(popup, redirect));
+        return dispatch(verifyUser(args));
       })
       .catch((err) => {
         const { message } = err?.response?.data || err;
@@ -135,33 +152,38 @@ export const loginWithFacebook = () => () => {
   );
 };
 
-export const verifyUser = (popup, redirect, alert) => (dispatch) => {
-  privateInstance
-    .get("/api/v1/auth/me")
-    .then((data) => {
-      const { user } = data?.data;
-      dispatch(setUser(user));
-      if (popup) {
-        const { message, type } = popup.onSuccess;
-        toast[type](message);
-      }
-      if (redirect) {
-        const { navigate, to } = redirect;
-        setTimeout(() => navigate(to, { replace: true }), 0);
-      }
-      if (alert && !user?.verified) {
-        alert.setEmailVerificationAlert(true);
-      }
-    })
-    .catch(async (err) => {
-      // const message = err?.response?.data?.message || err?.message;
-      dispatch(clearUser());
-      if (popup) {
-        const { message, type } = popup.onError;
-        toast[type](message);
-      }
-    });
-};
+export const verifyUser =
+  ({ alert, toggleBackdrop, popup, navigate, to }) =>
+  (dispatch) => {
+    toggleBackdrop();
+    privateInstance
+      .get("/api/v1/auth/me")
+      .then((data) => {
+        const { user } = data?.data;
+        dispatch(setUser(user));
+        if (popup) {
+          const { message, type } = popup.onSuccess;
+          toast[type](message);
+        }
+        if (navigate && to) {
+          setTimeout(() => navigate(to, { replace: true }), 0);
+        }
+        if (alert && !user?.verified) {
+          alert.setEmailVerificationAlert(true);
+        }
+      })
+      .catch(async (err) => {
+        dispatch(clearUser());
+        dispatch(clearUserPosts());
+        if (popup) {
+          const { message, type } = popup.onError;
+          toast[type](message);
+        }
+      })
+      .finally(() => {
+        toggleBackdrop();
+      });
+  };
 
 export const refreshToken = () => () => {
   return instance.get("/api/v1/auth/refreshtoken", { withCredentials: true });
@@ -208,7 +230,8 @@ export const removeUserAvatar = (handleClose) => (dispatch) => {
 };
 
 export const changePassword =
-  (values, setSubmitting, handleClose, navigate) => (dispatch) => {
+  ({ values, setSubmitting, handleClose, navigate, toggleBackdrop }) =>
+  (dispatch) => {
     const { oldPassword, newPassword } = values;
     privateInstance
       .patch("/api/v1/user/changepassword", {
@@ -216,9 +239,9 @@ export const changePassword =
         newPassword: newPassword.trim(),
       })
       .then((data) => {
-        toast.success(data.data?.message);
         handleClose();
-        dispatch(logOut(navigate, false));
+        dispatch(logOut({ toggleBackdrop, navigate, popupMsg: false }));
+        toast.success(data.data?.message);
       })
       .catch((err) => {
         const { message } = err?.response?.data || err;
@@ -237,7 +260,6 @@ export const verifyEmail = (payload, setSubmitting, navigate) => (dispatch) => {
     })
     .catch((err) => {
       const { message } = err?.response?.data;
-      console.log(err);
       toast.error(message);
     })
     .finally(() => setSubmitting(false));
@@ -254,7 +276,40 @@ export const sendEmail = (navigate, cb) => (dispatch) => {
     })
     .catch((err) => {
       const { message } = err?.response?.data;
-      console.log(err);
+      toast.error(message);
+    })
+    .finally(() => dispatch(setStatus(STATUS.IDLE)));
+};
+
+export const deactivateAccount =
+  ({ navigate, handleClose, toggleBackdrop }) =>
+  (dispatch) => {
+    dispatch(setStatus(STATUS.LOADING));
+    privateInstance
+      .patch("/api/v1/user/deactivate", {})
+      .then((data) => {
+        handleClose();
+        dispatch(logOut({ toggleBackdrop, navigate, popupMsg: false }));
+        toast.success(data?.data?.message);
+      })
+      .catch((err) => {
+        const { message } = err?.response?.data || err;
+        toast.error(message);
+      })
+      .finally(() => dispatch(setStatus(STATUS.IDLE)));
+  };
+
+export const deleteAccount = (handleClose, toggleBackdrop) => (dispatch) => {
+  dispatch(setStatus(STATUS.LOADING));
+  privateInstance
+    .delete("/api/v1/user")
+    .then((data) => {
+      handleClose();
+      dispatch(verifyUser({ toggleBackdrop }));
+      toast.success(data?.data?.message);
+    })
+    .catch((err) => {
+      const { message } = err?.response?.data || err;
       toast.error(message);
     })
     .finally(() => dispatch(setStatus(STATUS.IDLE)));

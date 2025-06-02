@@ -2,8 +2,9 @@ import Joi from "joi";
 import CustomErrorHandler from "../../services/CustomErrorHandler.js";
 import bcrypt from "bcrypt";
 import JwtService from "../../services/JwtService.js";
-import { User } from "../../models/index.js";
+import { User, Collection } from "../../models/index.js";
 import { v4 as uuidv4 } from "uuid";
+import download from "image-downloader";
 
 import {
   CLIENT_DEV_API,
@@ -57,6 +58,9 @@ const loginController = {
         JWT_REFRESH_SECRET
       );
 
+      // if user had deactivated his/her account
+      await User.findByIdAndUpdate(user._id, { deactivated: false });
+
       return res
         .status(200)
         .cookie("access_token", `Bearer ${access_token}`, {
@@ -89,18 +93,45 @@ const loginController = {
   async oAuthLogin(firstName, lastName, email, cb, avatar = null) {
     try {
       let user = await User.findOne({ email });
+      if (user) {
+        // if user had deactivated his/her account
+        await User.findByIdAndUpdate(user._id, {
+          deactivated: false,
+          firstName,
+          lastName,
+        });
+      }
 
       if (!user) {
+        let uniqueFileName;
+        if (avatar) {
+          // download avatar url
+          uniqueFileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+
+          const options = {
+            url: avatar,
+            dest: `${appRoot}/uploads/${uniqueFileName}.jpg`,
+          };
+
+          await download.image(options);
+        }
+
         const password = await bcrypt.hash(uuidv4(), 10);
         user = await User.create({
           firstName,
           lastName,
           email,
           password,
-          avatar,
+          avatar: avatar ? `uploads/${uniqueFileName}.jpg` : null,
           verified: true,
         });
+        await Collection.create({
+          name: "Favorites",
+          slug: "favorites",
+          user: user._id,
+        });
       }
+
       return cb(null, {
         success: true,
         user,
