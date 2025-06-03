@@ -71,7 +71,7 @@ export default function PostPreviewModal({
         <Box>
           <img
             style={{ width: "100%" }}
-            src={openPostData.image}
+            src={openPostData.image?.url}
             alt="preview"
           />
           <Box p="20px 30px 30px">
@@ -132,7 +132,7 @@ export default function PostPreviewModal({
               }}
               fullWidth
               onClick={() =>
-                downloadImage(openPostData._id, openPostData.image)
+                downloadImage({ ...openPostData.image, cloudinaryUrl: true })
               }
             >
               Download

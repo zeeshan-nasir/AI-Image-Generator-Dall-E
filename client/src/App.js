@@ -21,7 +21,13 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import VerifyEmail from "./scenes/auth/VerifyEmail";
 import VerifyEmailAlert from "./components/verifyEmailAlert";
-import { Backdrop, Box, CircularProgress } from "@mui/material";
+import {
+  Backdrop,
+  Box,
+  CircularProgress,
+  Stack,
+  Typography,
+} from "@mui/material";
 import UserPosts from "./scenes/UserPosts";
 import { useContext } from "react";
 import { backdropContext } from "./context/BackdropContext";
@@ -185,7 +191,12 @@ function App() {
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={openBackdrop}
       >
-        <CircularProgress color="inherit" />
+        <Stack alignItems="center" px="10px">
+          <CircularProgress color="inherit" />
+          <Typography textAlign="center" fontSize="18px">
+            Please wait a moment while we verify your login status.
+          </Typography>
+        </Stack>
       </Backdrop>
     </div>
   );

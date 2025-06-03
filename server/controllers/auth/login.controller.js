@@ -60,7 +60,7 @@ const loginController = {
       );
 
       // if user had deactivated his/her account
-      await User.findByIdAndUpdate(user._id, { deactivated: false });
+      await User.findByIdAndUpdate(user._id, { isActive: true });
 
       return res
         .status(200)
@@ -97,7 +97,7 @@ const loginController = {
       if (user) {
         // if user had deactivated his/her account
         await User.findByIdAndUpdate(user._id, {
-          deactivated: false,
+          isActive: true,
           firstName,
           lastName,
         });
@@ -107,7 +107,7 @@ const loginController = {
         // let uniqueFileName;
         if (avatar) {
           const image = await cloudinary.uploader.upload(avatar);
-          avatar = { url: image.url, id: image.public_id };
+          avatar = { url: image.secure_url, id: image.public_id };
           // download avatar url
           // uniqueFileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 

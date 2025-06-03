@@ -41,15 +41,16 @@ const userController = {
       if (user?.avatar) {
         await cloudinary.uploader.destroy(user.avatar?.id);
       }
-
       user = await User.findByIdAndUpdate(
         userId,
-        { avatar: { url: image.url, id: image.public_id } },
+        { avatar: { url: image.secure_url, id: image.public_id } },
         { new: true }
       );
+
+      console.log("coming3");
       return res.status(201).json({
         success: true,
-        avatar: user?.avatar?.url,
+        avatar: user?.avatar,
         message: "Avatar changed successfully!",
       });
     } catch (err) {
@@ -172,7 +173,7 @@ const userController = {
 
   async deactivateUser(req, res, next) {
     try {
-      await User.findByIdAndUpdate(req.user?._id, { deactivated: true });
+      await User.findByIdAndUpdate(req.user?._id, { isActive: false });
       return res
         .status(200)
         .json({ success: true, message: "Account deactivated successfully" });
