@@ -74,7 +74,14 @@ function App() {
       <Box flex={1}>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/search" element={<SearchResult />} />
+          <Route
+            path="/search"
+            element={
+              <PrivateRoute>
+                <SearchResult />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/search/single"
             element={
@@ -194,7 +201,7 @@ function App() {
         <Stack alignItems="center" px="10px">
           <CircularProgress color="inherit" />
           <Typography textAlign="center" fontSize="18px">
-            Please wait a moment while we verify your login status.
+            Please wait while we verify your login status.
           </Typography>
         </Stack>
       </Backdrop>
