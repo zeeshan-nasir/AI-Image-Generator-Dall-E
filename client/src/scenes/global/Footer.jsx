@@ -11,6 +11,7 @@ const quickLinks = [
 
 const Footer = () => {
   const { pathname } = useLocation();
+  console.log(shades.secondary[900]);
 
   if (["/", "/policies/content-policy", "/about", "/terms"].includes(pathname))
     return (
@@ -37,6 +38,28 @@ const Footer = () => {
             },
           }}
         >
+          {/* Contact */}
+          <Box>
+            <Typography mb="10px" fontWeight="bold">
+              Contact
+            </Typography>
+            <Typography fontSize="13px">
+              Email:{" "}
+              <a href="mailto:zeeeshannasir9@gmail.com">
+                zeeeshannasir9@gmail.com
+              </a>
+            </Typography>
+            <Typography fontSize="13px">
+              LinkedIn:{" "}
+              <a
+                href="https://www.linkedin.com/in/zeeshannasir94"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://www.linkedin.com/in/zeeshannasir94
+              </a>
+            </Typography>
+          </Box>
           {/* Quick Links */}
           <Box>
             <Typography mb="10px" fontWeight="bold">

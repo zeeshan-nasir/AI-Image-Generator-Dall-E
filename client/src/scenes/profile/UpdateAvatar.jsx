@@ -93,7 +93,7 @@ export default function UpdateAvatar({
                 sx={{ bgcolor: green[500], width: "180px", height: "180px" }}
               >
                 <Typography fontSize="106px">
-                  {user.firstName[0].toUpperCase()}
+                  {user?.firstName ? user.firstName[0]?.toUpperCase() : "U"}
                 </Typography>
               </Avatar>
             )}

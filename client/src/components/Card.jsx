@@ -66,10 +66,12 @@ const Card = ({
                   bgcolor: green[500],
                 }}
               >
-                {user.firstName[0].toUpperCase()}
+                {user?.firstName ? user.firstName[0]?.toUpperCase() : ""}
               </Avatar>
             )}
-            <Typography sx={{ mt: "5px" }}>{user?.firstName}</Typography>
+            <Typography sx={{ mt: "5px" }}>
+              {user?.firstName || "User"}
+            </Typography>
           </Box>
           <Typography fontSize="16px" color={shades.primary[300]}>
             {community ? "Click to try" : "Click to view"}

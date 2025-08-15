@@ -62,7 +62,7 @@ export const mailController = {
       }
 
       // check database
-      const user = await User.findById(userId);
+      const user = await User?.findById(userId);
       if (user?.verified) {
         return next(CustomErrorHandler.alreadyExist("User already verified"));
       }
@@ -147,7 +147,7 @@ export const mailController = {
         from: '"tech #️⃣" <zeeshan.nebula@gmail.com>', // sender address
         to: email, // list of receivers
         subject: "Change password for OpenAI",
-        html: resetPasswordTemplate(email, user.firstName, token),
+        html: resetPasswordTemplate(email, user?.firstName, token),
       });
 
       await User.findByIdAndUpdate(user?._id, { resetToken }, { new: true });

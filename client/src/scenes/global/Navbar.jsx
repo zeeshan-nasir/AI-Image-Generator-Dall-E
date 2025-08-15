@@ -69,7 +69,7 @@ const UserAlphaticAvatar = ({ user, setEmailVerificationAlert }) => {
             color: "#fff !important",
           }}
         >
-          {user.firstName[0].toUpperCase()}
+          {user?.firstName ? user.firstName[0]?.toUpperCase() : "U"}
         </Avatar>
       ) : (
         <Chip
@@ -81,7 +81,7 @@ const UserAlphaticAvatar = ({ user, setEmailVerificationAlert }) => {
                 color: "#fff !important",
               }}
             >
-              {user.firstName[0].toUpperCase()}
+              {user?.firstName ? user.firstName[0]?.toUpperCase() : "U"}
             </Avatar>
           }
           label={
@@ -348,7 +348,7 @@ function Navbar({ setEmailVerificationAlert }) {
               <FlexBox justifyContent="space-between" gap="35px">
                 <Box>
                   <Typography fontWeight="bold" fontSize="13px">
-                    {user?.firstName} {user?.lastName}
+                    {user?.firstName || "User"} {user?.lastName || ""}
                   </Typography>
                   <Typography color={shades.primary[300]} variant="small">
                     {user?.email}

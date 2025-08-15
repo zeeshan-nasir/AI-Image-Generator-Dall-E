@@ -1,7 +1,6 @@
 import {
   Box,
   InputAdornment,
-  Stack,
   TextField,
   Typography,
   useMediaQuery,
@@ -104,13 +103,12 @@ const Posts = ({
 }) => {
   const dispatch = useDispatch();
   const { toggleBackdrop } = useContext(backdropContext);
-  
+
   const { searchPost } = useSelector(
     (state) => state.postsReducer,
     shallowEqual
   );
 
-  
   const handleChange = (e) => {
     if (community) {
       dispatch(setSearchPost(e.target.value));

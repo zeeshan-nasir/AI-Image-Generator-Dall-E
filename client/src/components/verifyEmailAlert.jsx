@@ -56,7 +56,9 @@ export default function VerifyEmailAlert({
               display: "block",
             }}
           />
-          <Typography fontSize="18px">Hi {user?.firstName},</Typography>
+          <Typography fontSize="18px">
+            Hi {user?.firstName || "User"},
+          </Typography>
           <Typography my="10px">
             We're happy you signed in. Please confirm your email address and
             start enjoying DALL.E
